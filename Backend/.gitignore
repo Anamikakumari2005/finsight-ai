@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.pyc
+.env
+Financial_data.db
+policy_faiss_index/
