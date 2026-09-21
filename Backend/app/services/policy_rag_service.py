@@ -1,6 +1,6 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
 import os
@@ -8,6 +8,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 POLICY_DOCS_PATH = "policy_docs"
+
+def get_embeddings():
+    return HuggingFaceInferenceAPIEmbeddings(
+        api_key=os.getenv("HF_TOKEN"),
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
 
 def load_and_split_documents():
     all_chunks = []
@@ -26,7 +32,7 @@ def load_and_split_documents():
 def build_vectorstore():
     chunks = load_and_split_documents()
     
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = get_embeddings()
     
     vectorstore = FAISS.from_documents(chunks, embeddings)
     vectorstore.save_local("policy_faiss_index")
@@ -35,7 +41,7 @@ def build_vectorstore():
 
 
 def answer_policy_question(question: str) -> str:
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = get_embeddings()
     
     vectorstore = FAISS.load_local(
         "policy_faiss_index", 
@@ -73,6 +79,3 @@ Answer:
     response = llm.invoke(prompt)
     
     return response.content
-
-
-
