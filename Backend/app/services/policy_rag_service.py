@@ -1,6 +1,6 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceInferenceAPIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
 import os
@@ -10,11 +10,11 @@ load_dotenv()
 POLICY_DOCS_PATH = "policy_docs"
 
 def get_embeddings():
-    return HuggingFaceInferenceAPIEmbeddings(
+    return HuggingFaceEmbeddings(
         api_key=os.getenv("HF_TOKEN"),
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
-
+    
 def load_and_split_documents():
     all_chunks = []
     for filename in os.listdir(POLICY_DOCS_PATH):
